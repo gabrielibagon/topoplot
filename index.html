@@ -1,0 +1,257 @@
+<html>
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.16/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.16/addons/p5.dom.js"></script>
+    <script type="text/javascript"
+    src="https://cdn.rawgit.com/brython-dev/brython/3.4.0/www/src/brython.js">
+</script>
+
+	<script type="text/javascript" src="http://code.jquery.com/jquery-2.1.4.min.js"></script>  
+
+<scipt src="topoplot.py" type="text/python3"></scipt>
+
+<script>
+
+	var channels = ['F3', 'FC3', 'F7', 'F5', 'FC5', 'C5', 'FT7', 'T7', 'Fz', 'FC1', 'FCz', 'FC2', 'C3', 'C1', 'Cz', 'C2', 'C4', 'CP1', 'CPz', 'CP2', 'CP4', 'PO7', 'O1', 'PO8', 'Oz', 'O2', 'Iz', 'FC4', 'F6', 'FC6', 'C6', 'F8', 'AF8', 'T8', 'FT8', 'TP8', 'P10', 'P8', 'CP3', 'P1', 'Pz', 'P2', 'P4', 'CP6', 'POz', 'P3', 'CP5', 'P5', 'PO3', 'PO4', 'P6', 'P9', 'TP7', 'P7', 'F4', 'F2', 'F1', 'AFz', 'AF4', 'Fp2', 'Fpz', 'AF3', 'Fp1', 'AF7']
+
+	// [[p[0] + p[2] / 2., p[1] + p[3] / 2.] for p in l.pos]
+	var chanCoords = [[0.31362900573108532, 0.75790599920410662], [0.28209851040798983, 0.65517096828838617], [0.13263249407578237, 0.79094904488250006], [0.2206193044695608, 0.76933374407701083], [0.16822817479149127, 0.6655039080400732], [0.15943159246483279, 0.55102326471169683], [0.068133595692554283, 0.67715971194694402], [0.045908789953110374, 0.55102326471169683], [0.5, 0.75511632355848435], [0.38831618299083109, 0.6514167157751185], [0.5, 0.6530697941350907], [0.61168381700916896, 0.6514167157751185], [0.27295439497655521, 0.55102326471169683], [0.38647719748827752, 0.55102326471169683], [0.5, 0.55102326471169683], [0.61352280251172242, 0.55102326471169683], [0.72704560502344484, 0.55102326471169683], [0.38831618299083109, 0.45062981364827526], [0.5, 0.44897673528830306], [0.61168381700916896, 0.45062981364827526], [0.71790148959201017, 0.44687556113500759], [0.23309188353879456, 0.22079375862966227], [0.35967809909922716, 0.16281519761800184], [0.76690811646120549, 0.22079375862966227], [0.5, 0.14283714701812184], [0.64032190090077279, 0.16281519761800184], [0.5, 0.040790617594728074], [0.71790148959201017, 0.65517096828838617], [0.7793806955304392, 0.76933374407701083], [0.83177182520850867, 0.6655039080400732], [0.84056840753516715, 0.55102326471169683], [0.86736750592421763, 0.79094904488250006], [0.76690811646120549, 0.88125277079373143], [0.95409121004688968, 0.55102326471169683], [0.93186640430744572, 0.67715971194694391], [0.93186640430744572, 0.42488681747644974], [0.95920938240527187, 0.25111603949819283], [0.86736750592421763, 0.3110974845408937], [0.28209851040798983, 0.44687556113500759], [0.40755132538273114, 0.34533653754659832], [0.5, 0.34693020586490941], [0.5924486746172688, 0.34533653754659832], [0.68637099426891468, 0.34414053021928714], [0.83177182520850867, 0.43654262138332056], [0.5, 0.2448836764415156], [0.31362900573108532, 0.34414053021928714], [0.16822817479149127, 0.43654262138332056], [0.2206193044695608, 0.33271278534638293], [0.34563983041555107, 0.25346101449517544], [0.65436016958444898, 0.25346101449517544], [0.7793806955304392, 0.33271278534638293], [0.040790617594728074, 0.25111603949819283], [0.068133595692554283, 0.42488681747644974], [0.13263249407578237, 0.3110974845408937], [0.68637099426891468, 0.75790599920410662], [0.5924486746172688, 0.75670999187679533], [0.40755132538273114, 0.75670999187679533], [0.5, 0.85716285298187811], [0.65436016958444898, 0.84858551492821821], [0.64032190090077279, 0.93923133180539187], [0.5, 0.95920938240527187], [0.34563983041555107, 0.84858551492821821], [0.35967809909922716, 0.93923133180539187], [0.23309188353879456, 0.88125277079373143]]
+    var canvasHeight = window.innerHeight
+    var canvasWidth = window.innerWidth
+    var plotHeight = 400
+    var plotWidth = 700
+
+    var leftMargin = (canvasWidth - plotWidth) / 2
+    var rightMargin = (canvasWidth - plotWidth) / 2
+    var topMargin = 400
+    var bottomMargin = 400
+
+    var slant = 50
+    var lineLength = 100
+    var radius = Math.round(Math.sqrt(slant**2 + lineLength**2))
+    console.log(radius)
+
+    var dataDrawn = false;
+
+    var pg;
+
+    var dontDraw = false
+
+    var interpMatrix = []
+
+    var ctx = p5.drawingContext
+    var colors = [[255,0,0],[0,255,0],[0,0,255],[244, 131, 66],[65, 244, 217],[154, 65, 244]]
+
+
+
+    function drawLineTopo(topoPoint){
+    	idx = topoPoint[0]
+    	x1 = idxToMouse(idx)
+    	dir = topoPoint[1]
+	  	line(x1,yMin,x1,yMin+plotHeight)
+	  	if (dir==1){
+	  		start = yMin
+	  		end = start-lineLength
+	  		idx = Math.round((x1 - leftMargin)*256 / plotWidth)
+	  		image(interpMatrix[idx],x1,topMargin-2.4*radius)
+
+	  	}else{
+	  		start = yMax
+	  		end = yMax+lineLength
+	  		image(interpMatrix[idx],x1,topMargin+plotHeight+radius/2)
+
+	  	}
+	  	line(x1,start,x1+slant,end)
+	  	console.log(idx)
+    }
+
+    function drawData(data){
+
+
+	  	for (j=0;j<data[0].length-1;j++){
+	  		var xLast = 0
+	  		var yLast = plotHeight/2 + data[0][j]
+		  	for (i=1;i<data.length;i++){
+		  		xCurrent = i*(plotWidth/256)
+		  		yCurrent = plotHeight/2 + (data[i][j])*(plotHeight/2)
+				c = colors[j % colors.length];
+				pg.push()
+				pg.stroke(c);
+		  		pg.line(xLast,yLast,xCurrent,yCurrent)
+		  		pg.pop()
+		  		yLast = yCurrent
+		  		xLast = xCurrent
+		  	}
+	  	}
+    }
+
+    function drawTopo(data, vmin=null, vmax=null, cmap=null, sensors=true,
+                 res=64, axes=null, names=null, show_names=false, mask=null,
+                 mask_params=null, outlines='head', image_mask=null,
+                 contours=6, image_interp='bilinear', show=true,
+                 head_pos=null, onselect=null){
+    	_radius = radius/1.25
+		var topo = createGraphics(_radius*2,_radius*2+10) 
+		// topo.rect(0,0,radius*2-1,radius*2+10-1)
+
+    	topo.ellipse(_radius,_radius+5,_radius*2)
+    	var c = colors[Math.floor(Math.random() * colors.length)];
+    	var cString = 'rgb(' + c[0] + ',' +c[1] + ',' + c[2] + ')';
+    	for (var i=-_radius;i<_radius;i++){
+    		for (var j=-_radius;j<_radius;j++){
+    			if (i**2 + j**2 < _radius**2){
+
+					// topo.drawingContext.fillStyle = cString
+	    // 			topo.drawingContext.fillRect(i+_radius,j+_radius+5,1,1)
+    			}
+    		}
+    	}
+    	triangleWidth = 5
+    	topo.triangle(-7,-_radius,7,-_radius,0,-_radius-7)
+    	for (var i=0;i<chanCoords.length;i++){
+    		chanX = (-1*chanCoords[i][0])*_radius*2 + 2*_radius
+    		chanY = (-1*chanCoords[i][1])*_radius*2 + 2*_radius +5
+    		topo.point(chanX,chanY)
+       	}
+       	return topo
+    }
+
+
+
+
+    function setup() {
+        pg = createGraphics(canvasWidth, canvasHeight);
+		pg.pixelDensity(4);
+		pg.scale(1/4);
+		pg.position(x,y)
+
+		for (var i=0;i<256;i++){
+			console.log(i)
+			interpMatrix.push(drawTopo(data[i]))
+		}
+
+		var cnv = createCanvas(canvasWidth+1, canvasHeight+1);
+	    var x = (canvasWidth - width) / 2;
+		var y = (canvasHeight - height) / 2;
+  		cnv.position(x,y)
+  		xMin = leftMargin
+  		xMax = leftMargin+plotWidth
+  		yMin = topMargin
+  		yMax = topMargin+plotHeight
+	}
+
+	var data = []
+
+	var topoPoints = []
+
+	function draw() {
+	  clear()
+
+	  // pg.push();
+	  // pg.strokeWeight(3)
+	  pg.noFill()
+	  pg.rect(0,0,plotWidth,plotHeight)
+	  // pg.pop();
+
+	  pg.line(xMin+128*(plotWidth/256),0,xMin+128*(plotWidth/256),plotHeight)
+	  pg.line(0,plotHeight/2,plotWidth,plotHeight/2)
+
+	  var xCurrent;
+	  var yCurrent;
+	  for (tp=0;tp<topoPoints.length;tp++){
+	  	drawLineTopo(topoPoints[tp])
+	  }
+	  if (!dontDraw){
+		  if (mouseX > xMin && mouseX < xMax && mouseY > yMin && mouseY < yMax){
+			dir=1;
+			for (var i=0;i<topoPoints.length;i++){
+				if (Math.abs(idxToMouse(topoPoints[i][0])-mouseX) < 2*radius/1.25){
+					dir = topoPoints[i][1]*-1
+					break;
+				}
+			}
+		  	drawLineTopo([mouseToIdx(mouseX),dir])
+		  }
+	  }
+
+
+
+	  if (data.length > 1 && !dataDrawn){
+	  	drawData(data);
+	  	dataDrawn = true
+	  }
+	  image(pg,xMin,yMin)
+
+	  if (topoPoints.length > 0){
+		  if (Math.abs(mouseX-topoPoints[topoPoints.length-1][0]) > radius/2){
+		  	dontDraw = false
+		  }	  
+	}
+
+	}
+
+	function mouseToIdx(x){
+		return Math.round(((x - leftMargin) / plotWidth) * 256)
+	}
+	function idxToMouse(x){
+		return (x*plotWidth)/256 + leftMargin
+	}
+
+	function mousePressed() {
+		if (mouseButton == LEFT){
+			if (mouseX > xMin && 
+				mouseX < xMax && 
+				mouseY > yMin && 
+				mouseY < yMax){
+				dir=1;
+				for (var i=0;i<topoPoints.length;i++){
+					if (Math.abs(idxToMouse(topoPoints[i][0])-mouseX) < radius*2){
+						dir = topoPoints[i][1]*-1
+						break;
+					}
+				}
+				topoPoints.push([mouseToIdx(mouseX),dir])
+				dontDraw = true
+	  		}
+		}else if (mouseButton == RIGHT){
+			for (i=0;i<topoPoints.length;i++){
+				if (Math.abs(idxToMouse(topoPoints[i][0]) - mouseX) < 25){
+					topoPoints.splice(i,1)
+				}
+			}
+		}
+	}
+
+	loadData();
+	
+	function loadData(){
+		loadJSON(function(response) {
+    		data = JSON.parse(response);
+	 });
+
+
+	 function loadJSON(callback) {   
+
+	    var xobj = new XMLHttpRequest();
+	    xobj.overrideMimeType("application/json");
+	    xobj.open('GET', 'VEP.json', true);
+	    xobj.onreadystatechange = function () {
+	          if (xobj.readyState == 4 && xobj.status == "200") {
+	            callback(xobj.responseText);
+	          }
+	    };
+	    xobj.send(null);  
+	}
+
+	 
+ }
+ 
+    	
+
+
+
+    </script>
+  </head>
+<body oncontextmenu="return false;">
+  </body>
+</html>
